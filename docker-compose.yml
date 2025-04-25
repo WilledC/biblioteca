@@ -1,0 +1,42 @@
+version: 'latest'
+services:
+  # Servicio PHP + Apache
+  app:
+    build: .
+    image: willedc/biblioteca-app:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./app:/var/www/html
+    environment:
+      - DB_HOST=db
+      - DB_USER=biblioteca_user
+      - DB_PASSWORD=secret
+      - DB_NAME=biblioteca
+    depends_on:
+      - db
+
+  # Servicio MySQL
+  db:
+    image: mysql:latest
+    volumes:
+      - ./mysql:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootsecret
+      - MYSQL_DATABASE=biblioteca
+      - MYSQL_USER=biblioteca_user
+      - MYSQL_PASSWORD=secret
+    ports:
+      - "3306:3306"
+
+  # PHPMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=biblioteca_user
+      - PMA_PASSWORD=secret
+    depends_on:
+      - db
